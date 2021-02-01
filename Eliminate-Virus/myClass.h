@@ -37,7 +37,7 @@ struct Boom {
 	{
 		this->X = X;
 		this->Y = Y;
-		this->BoomTime = SetTime + 1000;//爆炸时间为放置后一秒
+		this->BoomTime = (SetTime + 1000) % 10000;//爆炸时间为放置后一秒
 		DieTime = 0;
 		this->BoomPower = BoomPower;
 	}
@@ -49,7 +49,7 @@ struct Player :public ActiveObject
 	int unbeatableTime = 0;
 	int BoomNumMax;
 	int BoomPower;
-	Player(int HP = 3, int X = 1, int Y = 1, int BoomNumMax = 3 , int BoomPower = 3)//int speed;
+	Player(int HP = 3, int X = 1, int Y = 1, int BoomNumMax = 3, int BoomPower = 3)//int speed;
 	{
 		this->HP = HP;
 		this->X = X;
@@ -58,8 +58,8 @@ struct Player :public ActiveObject
 		this->BoomPower = BoomPower;
 		//speed = 1;
 	}
-	void Boom(std::vector<Boom>& booms, int time) {
-		booms.push_back(Boom::Boom(X, Y, BoomPower, time));
+	void SetBoom(std::vector<Boom>& booms, int time) {
+		booms.push_back(Boom(X, Y, BoomPower, time));
 	}
 	void Hurt() {
 		if (unbeatable == false)
@@ -80,7 +80,7 @@ struct Player :public ActiveObject
 struct Monster :public ActiveObject
 {
 	int num;
-	Monster(int num,int HP = 1, int X = 1, int Y = 1)
+	Monster(int num, int HP = 1, int X = 1, int Y = 1)
 	{
 		this->HP = HP;
 		this->X = X;
