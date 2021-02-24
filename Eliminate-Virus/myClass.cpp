@@ -1,1 +1,2 @@
-#include "myClass.h"
+#include "myclass.h"
+

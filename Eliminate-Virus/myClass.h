@@ -1,109 +1,149 @@
-#pragma once
+ï»¿#pragma once
 #include<vector>
 
 bool Clash(int X, int Y);
 bool MonsterClash(int X, int Y, int num);
 struct  ActiveObject
 {
-	int HP;
-	int X;
-	int Y;
-	//int speed;
-	void move(int a) {
-		switch (a) {
-		case 1:
-			if (Clash(X, Y - 1))
-				Y -= 1; break;
-		case 2:
-			if (Clash(X, Y + 1))
-				Y += 1; break;
-		case 3:
-			if (Clash(X - 1, Y))
-				X -= 1; break;
-		case 4:
-			if (Clash(X + 1, Y))
-				X += 1; break;
-		}
-	}
+    int HP;
+    int X;
+    int Y;
+    //int speed;
+    int forward = 0;
+    int movetimer = 0;
+    void move(int a)
+    {
+        switch (a)
+        {
+        case 1:
+            Y -= 10;
+            break;
+        case 2:
+            Y += 10;
+            break;
+        case 3:
+            X -= 10;
+            break;
+        case 4:
+            X += 10;
+            break;
+        }
+    }
 };
 
-struct Boom {
-	int X;
-	int Y;
-	int BoomPower;
-	int BoomTime;
-	int DieTime;//³õÊ¼Îª0,Ã¿Ò»Ñ­»·¼ÓÒ»,µÈÓÚ1000Ê±±¬Õ¨½áÊø
-	Boom(int X, int Y, int BoomPower, int SetTime)
-	{
-		this->X = X;
-		this->Y = Y;
-		this->BoomTime = (SetTime + 1000) % 10000;//±¬Õ¨Ê±¼äÎª·ÅÖÃºóÒ»Ãë
-		DieTime = 0;
-		this->BoomPower = BoomPower;
-	}
-};
-
-struct Player :public ActiveObject
+struct DestructibleWall
 {
-	bool unbeatable = false;
-	int unbeatableTime = 0;
-	int BoomNumMax;
-	int BoomPower;
-	Player(int HP = 3, int X = 1, int Y = 1, int BoomNumMax = 3, int BoomPower = 3)//int speed;
-	{
-		this->HP = HP;
-		this->X = X;
-		this->Y = Y;
-		this->BoomNumMax = BoomNumMax;
-		this->BoomPower = BoomPower;
-		//speed = 1;
-	}
-	void SetBoom(std::vector<Boom>& booms, int time) {
-		booms.push_back(Boom(X, Y, BoomPower, time));
-	}
-	void Hurt() {
-		if (unbeatable == false)
-		{
-			unbeatable = true;
-			unbeatableTime = 1000;
-			HP--;
-		}
-	}
-	void UnbeatableTimeFresh() {
-		if (unbeatableTime > 0)
-			unbeatableTime -= 10;
-		else
-			unbeatable = false;
-	}
+    int X;
+    int Y;
+    bool destroy = false;
+    DestructibleWall(int X, int Y)
+    {
+        this->X = X;
+        this->Y = Y;
+    }
 };
 
-struct Monster :public ActiveObject
+struct Boom
 {
-	int num;
-	Monster(int num, int HP = 1, int X = 1, int Y = 1)
-	{
-		this->HP = HP;
-		this->X = X;
-		this->Y = Y;
-		//speed = 1;
-		this->num = num;
-	}
-	void move(int a)
-	{
-		switch (a) {
-		case 1:
-			if (MonsterClash(X, Y - 1, this->num))
-				Y -= 1; break;
-		case 2:
-			if (MonsterClash(X, Y + 1, this->num))
-				Y += 1; break;
-		case 3:
-			if (MonsterClash(X - 1, Y, this->num))
-				X -= 1; break;
-		case 4:
-			if (MonsterClash(X + 1, Y, this->num))
-				X += 1; break;
-		}
-	}
+    int X;
+    int Y;
+    int BoomPower;
+    int BoomTime;
+    int DieTime;//åˆå§‹ä¸º0,æ¯ä¸€å¾ªçŽ¯åŠ ä¸€,ç­‰äºŽ500æ—¶çˆ†ç‚¸ç»“æŸ
+    Boom(int X, int Y, int BoomPower, int SetTime)
+    {
+        this->X = X;
+        this->Y = Y;
+        this->BoomTime = (SetTime + 500) % 10000;//çˆ†ç‚¸æ—¶é—´ä¸ºæ”¾ç½®åŽä¸€ç§’
+        DieTime = 0;
+        this->BoomPower = BoomPower;
+    }
+};
+
+struct Player : public ActiveObject
+{
+    bool unbeatable = false;
+    int unbeatableTime = 0;
+    int BoomNumMax;
+    int BoomPower;
+    Player(int HP = 3, int X = 50, int Y = 50, int BoomNumMax = 1, int BoomPower = 1)//int speed;
+    {
+        this->HP = HP;
+        this->X = X;
+        this->Y = Y;
+        this->BoomNumMax = BoomNumMax;
+        this->BoomPower = BoomPower;
+        //speed = 1;
+    }
+    void SetBoom(std::vector<Boom>& booms, int time)
+    {
+        booms.push_back(Boom(X, Y, BoomPower, time));
+    }
+    void Hurt()
+    {
+        if (unbeatable == false)
+        {
+            unbeatable = true;
+            unbeatableTime = 1000;
+            HP--;
+        }
+    }
+    void UnbeatableTimeFresh()
+    {
+        if (unbeatableTime > 0)
+            unbeatableTime -= 10;
+        else
+            unbeatable = false;
+    }
+};
+
+struct Monster : public ActiveObject
+{
+    int num;
+    Monster(int num, int HP = 1, int X = 1, int Y = 1, int forward = 0, int movetimer = 0)
+    {
+        this->HP = HP;
+        this->X = X;
+        this->Y = Y;
+        //speed = 1;
+        this->num = num;
+        this->forward = forward;
+        this->movetimer = movetimer;
+    }
+//    void move(int a)
+//    {
+//        switch (a)
+//        {
+//        case 1:
+//            if (MonsterClash(X, Y - 1, this->num))
+//                Y -= 1;
+//            break;
+//        case 2:
+//            if (MonsterClash(X, Y + 1, this->num))
+//                Y += 1;
+//            break;
+//        case 3:
+//            if (MonsterClash(X - 1, Y, this->num))
+//                X -= 1;
+//            break;
+//        case 4:
+//            if (MonsterClash(X + 1, Y, this->num))
+//                X += 1;
+//            break;
+//        }
+//    }
+};
+
+struct Property
+{
+    int X;
+    int Y;
+    int effect;//1ä¸ºå¢žåŠ å¨åŠ›,2ä¸ºå¢žåŠ ä¸ªæ•°
+    Property(int X, int Y, int effect)
+    {
+        this->X = X;
+        this->Y = Y;
+        this->effect = effect;
+    }
 };
 
